@@ -1,0 +1,21 @@
+[server]
+# Streamlit server settings
+port = 8501
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+# Browser settings
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[theme]
+# Color theme
+primaryColor = "#FF4B4B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
+
+[logger]
+# Logging level
+level = "info"

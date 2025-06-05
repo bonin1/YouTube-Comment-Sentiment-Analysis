@@ -20,6 +20,7 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -47,7 +48,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-cover/
 
 # Translations
 *.mo
@@ -70,7 +70,6 @@ instance/
 docs/_build/
 
 # PyBuilder
-.pybuilder/
 target/
 
 # Jupyter Notebook
@@ -85,12 +84,6 @@ ipython_config.py
 
 # pipenv
 Pipfile.lock
-
-# poetry
-poetry.lock
-
-# pdm
-.pdm.toml
 
 # PEP 582
 __pypackages__/
@@ -129,38 +122,29 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-.idea/
-
 # Project specific
 data/
 logs/
 exports/
-cache/
 models/
-temp/
 *.db
 *.sqlite
 *.sqlite3
-
-# OS specific
+temp/
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# IDE specific
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
 
-# Backup files
-*.bak
-*.backup
-*.orig
+# Model cache
+transformers_cache/
+torch_cache/
+
+# Temporary files
+*.tmp
+*.temp

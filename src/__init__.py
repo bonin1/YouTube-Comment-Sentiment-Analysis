@@ -1,23 +1,9 @@
-"""
-Source package for YouTube Comment Sentiment Analysis.
-
-This package contains all core functionality including scrapers, analyzers,
-processors, visualizers, and utilities.
-"""
-
-from .scrapers import CommentScraper
-from .analyzers import SentimentAnalyzer
-from .processors import TextPreprocessor
-from .visualizers import AdvancedVisualizer
-from .utils import DataManager, ProgressTracker
-
-__all__ = [
-    'CommentScraper',
-    'SentimentAnalyzer', 
-    'TextPreprocessor',
-    'AdvancedVisualizer',
-    'DataManager',
-    'ProgressTracker'
-]
+"""Source package initialization"""
+from .core import *
+from .gui import *
+from .utils import *
+from .config import *
 
 __version__ = "1.0.0"
+__author__ = "YouTube Comment Sentiment Analysis Team"
+__description__ = "Advanced sentiment analysis tool for YouTube comments"
