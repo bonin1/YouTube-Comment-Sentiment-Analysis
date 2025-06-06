@@ -96,13 +96,13 @@ class YouTubeCommentScraper:
             time.sleep(sleep_time)
         
         self.last_request_time = time.time()
-    
     @timing
     async def scrape_comments(
         self,
         url: str,
         limit: int = 100,
-        include_replies: bool = False
+        include_replies: bool = False,
+        sort_by: str = "Top Liked"
     ) -> List[Comment]:
         """
         Scrape comments from YouTube video
@@ -111,22 +111,34 @@ class YouTubeCommentScraper:
             url: YouTube video URL
             limit: Maximum number of comments to scrape
             include_replies: Whether to include reply comments
+            sort_by: Comment sorting method ("Top Liked", "Most Recent", "Oldest")
             
         Returns:
             List of Comment objects
         """
         if not self.validate_video(url):
             raise ValueError("Invalid or inaccessible video")
-        
         video_id = extract_video_id(url)
         comments_list = []
         
-        self.logger.info(f"Starting to scrape {limit} comments from video {video_id}")
+        # Map sort options to youtube-comment-downloader values
+        # Note: youtube-comment-downloader supports sort_by parameter
+        # 0 = top comments (default), 1 = newest first
+        sort_mapping = {
+            "Top Liked": 0,      # Most popular/top comments
+            "Most Recent": 1,    # Newest comments first  
+            "Oldest": 1          # We'll get newest first then reverse for oldest
+        }
+        
+        sort_param = sort_mapping.get(sort_by, 0)  # Default to top liked
+        
+        self.logger.info(f"Starting to scrape {limit} comments from video {video_id} sorted by {sort_by}")
         
         try:
-            comments_generator = self.downloader.get_comments(video_id)
-            
+            # Get comments with specified sorting
+            comments_generator = self.downloader.get_comments(video_id, sort_by=sort_param)
             processed_count = 0
+            temp_comments = []  # For handling "Oldest" sorting
             
             for comment_data in comments_generator:
                 if processed_count >= limit:
@@ -138,9 +150,14 @@ class YouTubeCommentScraper:
                 # Parse comment data
                 comment = self._parse_comment(comment_data)
                 if comment:
-                    comments_list.append(comment)
+                    # For "Oldest" sorting, collect all comments first, then reverse
+                    if sort_by == "Oldest":
+                        temp_comments.append(comment)
+                    else:
+                        comments_list.append(comment)
                     processed_count += 1
-                      # Update progress
+                    
+                    # Update progress
                     if self.progress_callback:
                         progress = processed_count / limit
                         # Check if callback is async or sync
@@ -152,10 +169,17 @@ class YouTubeCommentScraper:
                 # Handle replies if requested
                 if include_replies and 'replies' in comment_data:
                     reply_comments = self._process_replies(comment_data['replies'], comment.id)
-                    comments_list.extend(reply_comments)
+                    if sort_by == "Oldest":
+                        temp_comments.extend(reply_comments)
+                    else:
+                        comments_list.extend(reply_comments)
                 
                 # Small delay between comments
                 await asyncio.sleep(0.1)
+            
+            # Handle "Oldest" sorting by reversing the order
+            if sort_by == "Oldest":
+                comments_list = list(reversed(temp_comments))
         
         except Exception as e:
             self.logger.error(f"Error scraping comments: {e}")

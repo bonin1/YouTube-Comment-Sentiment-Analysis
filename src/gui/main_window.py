@@ -129,16 +129,15 @@ class SentimentAnalysisGUI:
             width=10
         )
         limit_spinbox.grid(row=1, column=1, sticky=tk.W, pady=(10, 0))
-        
-        # Sort options
+          # Sort options
         ttk.Label(input_frame, text="Sort by:").grid(row=2, column=0, sticky=tk.W, padx=(0, 10), pady=(10, 0))
-        self.sort_var = tk.StringVar(value="top")
+        self.sort_var = tk.StringVar(value="Top Liked")
         sort_combo = ttk.Combobox(
             input_frame,
             textvariable=self.sort_var,
-            values=["top", "new", "time"],
+            values=["Top Liked", "Most Recent", "Oldest"],
             state="readonly",
-            width=10
+            width=12
         )
         sort_combo.grid(row=2, column=1, sticky=tk.W, pady=(10, 0))
         
@@ -311,29 +310,32 @@ class SentimentAnalysisGUI:
         # Disable controls
         self._set_controls_state(False)
         self.is_running = True
-        
-        # Start analysis in background thread
+          # Start analysis in background thread
         thread = threading.Thread(target=self._run_analysis, daemon=True)
         thread.start()
     
     def _run_analysis(self):
         """Run the complete analysis pipeline"""
-        try:            # Get parameters
+        try:
+            # Get parameters
             url = self.url_var.get().strip()
             limit = self.limit_var.get()
             include_replies = self.include_replies_var.get()
-            
-            # Create event loop for async operations
+            sort_by = self.sort_var.get()
+              # Create event loop for async operations
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
-            try:                # Scrape comments
+            try:
+                # Scrape comments
                 self.status_var.set("Scraping comments...")
+                
                 comments = loop.run_until_complete(
                     self.scraper.scrape_comments(
                         url=url,
                         limit=limit,
-                        include_replies=include_replies
+                        include_replies=include_replies,
+                        sort_by=sort_by
                     )
                 )
                 

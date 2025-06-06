@@ -197,18 +197,24 @@ class StreamlitYouTubeSentimentApp:
                 step=10,
                 help="Maximum number of comments to analyze"
             )
-            
             include_replies = st.checkbox(
                 "Include Replies",
                 value=False,
                 help="Include reply comments in the analysis"
             )
             
+            sort_by = st.selectbox(
+                "Sort Comments By",
+                ["Top Liked", "Most Recent", "Oldest"],
+                index=0,
+                help="Choose how to sort comments before analysis"
+            )
+            
             # Analysis button
             if st.button("🚀 Start Analysis", type="primary"):
                 if url:
                     if validate_youtube_url(url):
-                        self._run_analysis(url, limit, include_replies)
+                        self._run_analysis(url, limit, include_replies, sort_by)
                     else:
                         st.error("❌ Please enter a valid YouTube URL")
                 else:
@@ -273,8 +279,7 @@ class StreamlitYouTubeSentimentApp:
             
             Analysis may take a few minutes depending on the number of comments and your internet connection.
             """)
-    
-    def _run_analysis(self, url: str, limit: int, include_replies: bool):
+    def _run_analysis(self, url: str, limit: int, include_replies: bool, sort_by: str = "Top Liked"):
         """Run the complete sentiment analysis"""
         try:
             # Progress tracking
@@ -299,13 +304,13 @@ class StreamlitYouTubeSentimentApp:
             # Create event loop for async operations
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            
             try:
                 comments = loop.run_until_complete(
                     self.scraper.scrape_comments(
                         url=url,
                         limit=limit,
-                        include_replies=include_replies
+                        include_replies=include_replies,
+                        sort_by=sort_by
                     )
                 )
                 
